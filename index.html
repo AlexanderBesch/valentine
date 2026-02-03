@@ -33,7 +33,6 @@
       border: none;
       border-radius: 10px;
       cursor: pointer;
-      position: relative;
     }
 
     #yes {
@@ -45,9 +44,10 @@
     #no {
       background-color: #ddd;
       position: absolute;
+      transition: left 3s linear, top 3s linear;
     }
 
-    /* 💖 Modal styles */
+    /* 💖 Modal */
     .modal {
       position: fixed;
       inset: 0;
@@ -72,13 +72,9 @@
       margin-bottom: 10px;
     }
 
-    .modal-content p {
-      font-size: 1.2rem;
-    }
-
     @keyframes pop {
-      0% { transform: scale(0.6); opacity: 0; }
-      100% { transform: scale(1); opacity: 1; }
+      from { transform: scale(0.6); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
   </style>
 </head>
@@ -91,7 +87,6 @@
     <button id="no">No</button>
   </div>
 
-  <!-- 💖 Cute popup -->
   <div class="modal" id="modal">
     <div class="modal-content">
       <h2>YAY!!! 💕</h2>
@@ -104,42 +99,47 @@
     const yesBtn = document.getElementById("yes");
     const modal = document.getElementById("modal");
 
-    // Show cute popup
     yesBtn.addEventListener("click", () => {
       modal.style.display = "flex";
     });
 
-    function moveNoButton() {
+    function randomPosition() {
       const padding = 20;
       const maxX = window.innerWidth - noBtn.offsetWidth - padding;
       const maxY = window.innerHeight - noBtn.offsetHeight - padding;
 
-      const x = Math.random() * maxX;
-      const y = Math.random() * maxY;
+      return {
+        x: Math.random() * maxX,
+        y: Math.random() * maxY
+      };
+    }
 
+    function moveNoSmooth() {
+      const { x, y } = randomPosition();
       noBtn.style.left = `${x}px`;
       noBtn.style.top = `${y}px`;
     }
 
+    function jumpNoInstant() {
+      noBtn.style.transition = "none";
+      moveNoSmooth();
+
+      // re-enable smooth motion after jump
+      requestAnimationFrame(() => {
+        noBtn.style.transition = "left 3s linear, top 3s linear";
+      });
+    }
+
     // Initial placement
-    moveNoButton();
+    moveNoSmooth();
 
-    // Cursor-chasing evasion 😈
-    document.addEventListener("mousemove", (e) => {
-      const rect = noBtn.getBoundingClientRect();
-      const dx = e.clientX - (rect.left + rect.width / 2);
-      const dy = e.clientY - (rect.top + rect.height / 2);
-      const distance = Math.sqrt(dx * dx + dy * dy);
+    // Slowly wander every few seconds
+    setInterval(moveNoSmooth, 3000);
 
-      if (distance < 120) {
-        moveNoButton();
-      }
-    });
-
-    // Mobile tap evasion
-    noBtn.addEventListener("touchstart", moveNoButton);
-    noBtn.addEventListener("mouseover", moveNoButton);
-    noBtn.addEventListener("click", moveNoButton);
+    // Jump away when they try 😈
+    noBtn.addEventListener("mouseover", jumpNoInstant);
+    noBtn.addEventListener("mousedown", jumpNoInstant);
+    noBtn.addEventListener("touchstart", jumpNoInstant);
   </script>
 
 </body>
