@@ -3,19 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <title>Valentine?</title>
+
   <style>
     body {
       margin: 0;
       height: 100vh;
-      background: #ffb6c1; /* pink */
+      background: #ffb6c1;
       display: flex;
       justify-content: center;
       align-items: center;
-      font-family: 'Arial', sans-serif;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
     }
 
     .container {
       text-align: center;
+      z-index: 1;
     }
 
     h1 {
@@ -27,48 +30,116 @@
     button {
       font-size: 1.5rem;
       padding: 12px 30px;
-      margin: 0 15px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
+      position: relative;
     }
 
     #yes {
       background-color: #ff4d88;
       color: white;
+      margin-right: 20px;
     }
 
     #no {
       background-color: #ddd;
       position: absolute;
     }
+
+    /* 💖 Modal styles */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      text-align: center;
+      animation: pop 0.4s ease-out;
+    }
+
+    .modal-content h2 {
+      font-size: 2.5rem;
+      color: #ff4d88;
+      margin-bottom: 10px;
+    }
+
+    .modal-content p {
+      font-size: 1.2rem;
+    }
+
+    @keyframes pop {
+      0% { transform: scale(0.6); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
   </style>
 </head>
+
 <body>
 
   <div class="container">
     <h1>Will you be my Valentine?</h1>
-    <button id="yes" onclick="alert('YAY ❤️')">Yes</button>
+    <button id="yes">Yes</button>
     <button id="no">No</button>
   </div>
 
+  <!-- 💖 Cute popup -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h2>YAY!!! 💕</h2>
+      <p>You just made my day 🥰<br>Happy Valentine’s 💌</p>
+    </div>
+  </div>
+
   <script>
-    const noButton = document.getElementById('no');
+    const noBtn = document.getElementById("no");
+    const yesBtn = document.getElementById("yes");
+    const modal = document.getElementById("modal");
 
-    function moveButton() {
+    // Show cute popup
+    yesBtn.addEventListener("click", () => {
+      modal.style.display = "flex";
+    });
+
+    function moveNoButton() {
       const padding = 20;
-      const maxX = window.innerWidth - noButton.offsetWidth - padding;
-      const maxY = window.innerHeight - noButton.offsetHeight - padding;
+      const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+      const maxY = window.innerHeight - noBtn.offsetHeight - padding;
 
-      const randomX = Math.random() * maxX;
-      const randomY = Math.random() * maxY;
+      const x = Math.random() * maxX;
+      const y = Math.random() * maxY;
 
-      noButton.style.left = `${randomX}px`;
-      noButton.style.top = `${randomY}px`;
+      noBtn.style.left = `${x}px`;
+      noBtn.style.top = `${y}px`;
     }
 
-    noButton.addEventListener('mouseover', moveButton);
-    noButton.addEventListener('click', moveButton);
+    // Initial placement
+    moveNoButton();
+
+    // Cursor-chasing evasion 😈
+    document.addEventListener("mousemove", (e) => {
+      const rect = noBtn.getBoundingClientRect();
+      const dx = e.clientX - (rect.left + rect.width / 2);
+      const dy = e.clientY - (rect.top + rect.height / 2);
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < 120) {
+        moveNoButton();
+      }
+    });
+
+    // Mobile tap evasion
+    noBtn.addEventListener("touchstart", moveNoButton);
+    noBtn.addEventListener("mouseover", moveNoButton);
+    noBtn.addEventListener("click", moveNoButton);
   </script>
 
 </body>
